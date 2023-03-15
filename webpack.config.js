@@ -18,7 +18,7 @@ module.exports = {
       }
     ]
   },
-  resolve: { extensions: ["*", ".js", ".jsx"] },
+  resolve: { extensions: ["*", ".js", ".jsx", ".css"] },
   output: {
     path: path.join(__dirname,"/client/public"),
     publicPath: "/dist/",

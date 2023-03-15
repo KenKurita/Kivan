@@ -6,7 +6,8 @@ import Submittals from './components/Submittals.jsx';
 import Account from './components/Account.jsx';
 import Home from './components/Home.jsx';
 import NavBar from './components/NavBar.jsx';
-import CreateProduct from './components/CreateProduct.jsx';
+import CreateProductIndex from './components/CreateProduct/CreateProductIndex.jsx';
+import './Style.css';
 
 export default function App() {
   return (
@@ -15,11 +16,12 @@ export default function App() {
     <Outlet/>
       <Routes>
         <Route path="/" element={<NavBar/>}>
+          <Route path="home" element={<Home/>}/>
           <Route path="orders" element={<Orders/>}/>
           <Route path="quotes" element={<Quotes/>}/>
           <Route path="submittals" element={<Submittals/>}/>
           <Route path="account" element={<Account/>}/>
-          <Route path="createProduct" element={<CreateProduct/>}/>
+          <Route path="createProduct" element={<CreateProductIndex/>}/>
         </Route>
       </Routes>
     </div>
