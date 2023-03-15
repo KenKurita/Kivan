@@ -3,7 +3,7 @@ import {useState, useEffect} from "react";
 import { useForm } from "react-hook-form";
 import axios from 'axios';
 // import styled from 'styled-components';
-import "./../../Style.css";
+import './CreateProduct.css';
 
 
 export default function CategoryList(props) {
@@ -25,15 +25,29 @@ export default function CategoryList(props) {
   }, []);
 
 
-  const mappy = categoryList.map((item) =>
-      <div id={item} key={'category-' + item.name}>{item.name}{item.description}</div>
-    )
+  const mappy = function() {
+    let counted = [];
+    let remainder = [];
+    let remainderArr = categoryList.slice(categoryList.length % 4)
+    let loopCount = (categoryList.length - (categoryList.length % 4)) / 4;
+    for (var i = 0; i < loopCount; i+=4) {
+      counted.push(<tr key={i}><td key={categoryList[i].name}>{categoryList[i].name}</td><td key={categoryList[i+1].name}>{categoryList[i+1].name}</td>
+      <td key={categoryList[i+2].name}>{categoryList[i+2].name}</td><td key={categoryList[i+3].name}>{categoryList[i+3].name}</td></tr>)
+    }
+
+    for (var i = 0; i < remainderArr.length; i++) {
+      remainder.push(<td key={remainderArr[i].name}>{remainderArr[i].name}</td>)
+    }
+    counted.push(<tr key='remainder'>{remainder}</tr>)
+    return counted;
+  }
 
   function boo(input) {
     setDisplayAddToList(!displayAddToList);
   }
 
   function addItem() {
+    <div>
     <form onSubmit={handleSubmit(formSubmit)}>
         Category Name:
         <input  {...register("name")} />
@@ -42,6 +56,7 @@ export default function CategoryList(props) {
         {errors.exampleRequired && <span>This field is required</span>}
         <input type="submit" value="Create Category"/>
       </form>
+    </div>
   }
 
   function formSubmit(form) {
@@ -60,26 +75,22 @@ export default function CategoryList(props) {
   }
 
   return (
-    // <Wrapper>
-    <div id="categroy-list">
+    <div>
       <h2>Part Creator</h2>
-      <div>
-      {mappy}
-      </div> <br/>
+      <div id="category-list">
+      <table>
+        <tbody>
+          {mappy()}
+        </tbody>
+      </table>
+      </div>
       <div>
         Category List
         <button onClick={boo}>Add To List</button>
         <div>{displayAddToList ? addItem: null}</div>
       </div>
     </div>
-    // </Wrapper>
+
   )
 }
 
-
-//css
-// const Wrapper = styled.div`
-//   width: 100%;
-//   height: 100%;
-//   background-color: red;
-// `

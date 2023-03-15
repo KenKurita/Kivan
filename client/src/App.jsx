@@ -12,7 +12,6 @@ import './Style.css';
 export default function App() {
   return (
     <div>
-      Hello ken
     <Outlet/>
       <Routes>
         <Route path="/" element={<NavBar/>}>
