@@ -76,16 +76,21 @@ app.get('/database/getCategoryList', function(req, res) {
 
 app.post('/database/addCategoryList', function(req, res) {
   //test
-  console.log('inside server add Category', req.data)
-  if ((db.query('SELECT * from categoryList')) === 0) {
-    db.query('CREATE TABLE categoryList (name VARCHAR(255), description VARCHAR(400))');
-    db.query(`INSERT INTO categoryList (name, description) VALUES (${req.data.item.name}, ${req.data.item.description})`)
-    res.status(202).send('success')
-  } else {
-    db.query(`INSERT INTO categoryList (name, description) VALUES (${req.data.item.name}, ${req.data.item.description})`)
-    res.status(202).send('success')
-  }
-  res.status(404).send('failure inside addCategoryList')
+  console.log('inside server add Category', req.body.item.name)
+  // if ((db.query('SELECT * from categoryList')) === 0) {
+  //   db.query('CREATE TABLE categoryList (name VARCHAR(255), description VARCHAR(400))');
+  //   db.query(`INSERT INTO categoryList (name, description) VALUES (${req.data.item.name}, ${req.data.item.description})`)
+  //   res.status(202).send('success')
+  // } else {
+    db.query(`INSERT INTO categoryList (name, description) VALUES ('${req.body.item.name}', '${req.body.item.description}')`, (err, result) => {
+      if (err) {
+        res.status(400).send('failed to post to db')
+      } else {
+        res.status(202).send('successfully posted to db')
+      }
+    })
+  // }
+
 })
 
 /////////////database queires end////////////////

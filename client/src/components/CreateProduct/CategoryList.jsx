@@ -28,17 +28,23 @@ export default function CategoryList(props) {
   const mappy = function() {
     let counted = [];
     let remainder = [];
-    let remainderArr = categoryList.slice(categoryList.length % 4)
-    let loopCount = (categoryList.length - (categoryList.length % 4)) / 4;
-    for (var i = 0; i < loopCount; i+=4) {
-      counted.push(<tr key={i}><td key={categoryList[i].name}>{categoryList[i].name}</td><td key={categoryList[i+1].name}>{categoryList[i+1].name}</td>
-      <td key={categoryList[i+2].name}>{categoryList[i+2].name}</td><td key={categoryList[i+3].name}>{categoryList[i+3].name}</td></tr>)
+    let remainderArr = categoryList.slice(-1 * (categoryList.length % 4))
+    let loopCount = categoryList.length - (categoryList.length % 4)
+    if (categoryList.length % 4 !== 0) {
+      for (var i = 0; i < loopCount; i+=4) {
+        counted.push(<tr key={i}><td key={categoryList[i].name}>{categoryList[i].name}</td><td key={categoryList[i+1].name}>{categoryList[i+1].name}</td>
+        <td key={categoryList[i+2].name}>{categoryList[i+2].name}</td><td key={categoryList[i+3].name}>{categoryList[i+3].name}</td></tr>)
+      }
+      for (var i = 0; i < remainderArr.length; i++) {
+        remainder.push(<td key={remainderArr[i].name}>{remainderArr[i].name}</td>)
+      }
+      counted.push(<tr key='remainder'>{remainder}</tr>)
+    } else {
+      for (var i = 0; i < categoryList.length; i+=4) {
+        counted.push(<tr key={i}><td key={categoryList[i].name}>{categoryList[i].name}</td><td key={categoryList[i+1].name}>{categoryList[i+1].name}</td>
+        <td key={categoryList[i+2].name}>{categoryList[i+2].name}</td><td key={categoryList[i+3].name}>{categoryList[i+3].name}</td></tr>)
+      }
     }
-
-    for (var i = 0; i < remainderArr.length; i++) {
-      remainder.push(<td key={remainderArr[i].name}>{remainderArr[i].name}</td>)
-    }
-    counted.push(<tr key='remainder'>{remainder}</tr>)
     return counted;
   }
 
@@ -47,7 +53,7 @@ export default function CategoryList(props) {
   }
 
   function addItem() {
-    <div>
+    return (<div>
     <form onSubmit={handleSubmit(formSubmit)}>
         Category Name:
         <input  {...register("name")} />
@@ -56,7 +62,7 @@ export default function CategoryList(props) {
         {errors.exampleRequired && <span>This field is required</span>}
         <input type="submit" value="Create Category"/>
       </form>
-    </div>
+    </div>)
   }
 
   function formSubmit(form) {
@@ -87,8 +93,9 @@ export default function CategoryList(props) {
       <div>
         Category List
         <button onClick={boo}>Add To List</button>
-        <div>{displayAddToList ? addItem: null}</div>
+        {displayAddToList ? addItem(): null}
       </div>
+      --
     </div>
 
   )
