@@ -2,6 +2,7 @@ import React from "react";
 import {useState, useEffect} from "react";
 import { useForm } from "react-hook-form";
 import axios from 'axios';
+import ClickDropDown from './ClickDropDown.jsx';
 // import styled from 'styled-components';
 import './CreateProduct.css';
 
@@ -14,7 +15,6 @@ export default function CategoryList(props) {
   useEffect(() => {
     axios.get(`/database/getCategoryList`)
     .then((result) => {
-      console.log(result, 'inside useEffect')
       setCategoryList(result.data)
     })
     .catch((err) => {
@@ -95,6 +95,7 @@ export default function CategoryList(props) {
         <button onClick={boo}>Add To List</button>
         {displayAddToList ? addItem(): null}
       </div>
+      <ClickDropDown list={categoryList}/>
       --
     </div>
 

@@ -6,7 +6,7 @@ import Submittals from './components/Submittals.jsx';
 import Account from './components/Account.jsx';
 import Home from './components/Home.jsx';
 import NavBar from './components/NavBar.jsx';
-import CreateProductIndex from './components/CreateProduct/CreateProductIndex.jsx';
+import CreateProductIndex from './components/CreateProduct/Index.jsx';
 import './Style.css';
 
 export default function App() {

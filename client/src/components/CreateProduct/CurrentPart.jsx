@@ -3,29 +3,9 @@ import { useForm } from "react-hook-form";
 import axios from 'axios';
 import './CreateProduct.css';
 
+export default function CurrentPart(props) {
 
-export default function ClickDropDown(props) {
-
-  const [partList, setPartList] = useState([{partNumber: 'ddd', description: 'tits', price: '34'}]);
-  const [partListItem, setPartListItem] = useState('Examle');
-  const [partListButton, setPartListButton] = useState(false);
   const { register, handleSubmit, watch, formState: { errors } } = useForm();
-
-
-  function displayParts(list) {
-    if (list) {
-      return list.map((item) =>
-        <option key={item.name}>{item.name}</option>
-      )
-    }
-  }
-
-
-
-
-  function partListButtonClick() {
-    setPartListButton(!partListButton)
-  }
 
   function formSubmit(form) {
     let placeholder = partList;
@@ -42,16 +22,11 @@ export default function ClickDropDown(props) {
     })
   }
 
-
-
   return (
     <div>
-      <select name="parts" id="parts">
-      {displayParts(props.list)}
-      </select>
       <form onSubmit={handleSubmit(formSubmit)}>
-        Part#:
-        <input  {...register("partNumber")} />
+        Fixture Type
+        <input  {...register("name", { required: true })} />
         Description:
         <input {...register("description", { required: true })} />
         Price:
