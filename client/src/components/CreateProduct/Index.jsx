@@ -10,14 +10,22 @@ import './CreateProduct.css';
 export default function CreateProductMainPage(props) {
 
   const [productName, setProductName] = useState('');
-  const [fullPart, setFullPart] = useState([<AddCategoryToPart key="1" fullPart={fullPart} setFullPart={setFullPart}/>, <AddCategoryToPart fullPart={fullPart} setFullPart={setFullPart}/>]);
+  const [fullPartData, setFullPartData] = useState({});
+  const [fullPart, setFullPart] = useState([<AddCategoryToPart key="1" fullPart={fullPart} setFullPart={setFullPart}/>]);
   const plusSign = <AddCategoryToPart onClick={add}/>
 
   function add() {
      console.log('clicked', fullPart)
     let fullP = [...fullPart];
-    fullP.push(<AddCategoryToPart key={fullP.length} fullPart={fullPart} setFullPart={setFullPart}/>);
+    fullP.push(<AddCategoryToPart key={fullP.length} fullPartData={fullPartData} setFullPartData={setFullPartData}/>);
     setFullPart(fullP)
+  }
+
+  function submit() {
+    axios.post('/database/post', {fullPart})
+    .then((res) => {
+      console.log(res, 'inside axios')
+    })
   }
 
   // useEffect(() => {
@@ -27,7 +35,7 @@ export default function CreateProductMainPage(props) {
 
 
   return (
-    <div id="CreateProductMainPage">
+    <div id="CreateProductMainPage" style={{width: "50%"}}>
       {/* <CategoryList />
       <ClickDropDown/>
       <CurrentPart/> */}
@@ -37,6 +45,7 @@ export default function CreateProductMainPage(props) {
       <div style={{float:"left", width:"100%", fontSize:"400%"}} onClick={add}>
         +
       </div>
+      <button>Submit</button>
       </div>
     </div>
   )

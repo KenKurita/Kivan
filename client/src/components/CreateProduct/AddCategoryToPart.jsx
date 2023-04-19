@@ -4,9 +4,23 @@ import axios from 'axios';
 
 export default function AddCategoryToPart (props) {
   const [categoryName, setCategoryName] = useState('');
-  const { register, handleSubmit, watch, formState: { errors } } = useForm();
+  // const { register, handleSubmit, watch, formState: { errors } } = useForm();
+  // const { register2, handleSubmit2, watch2, formState: {errors2} } = useForm();
   const [categoryBody, setCategoryBody] = useState([]);
-  const [buttonAdd, setButtonAdd] = useState(false)
+  const [buttonAdd, setButtonAdd] = useState(false);
+
+  const {
+    register,
+    formState: { errors },
+    handleSubmit,
+  } = useForm();
+
+  const {
+    register: register2,
+    formState: { errors: errors2 },
+    handleSubmit: handleSubmit2,
+  } = useForm();
+
 
   function clickAdd() {
     setButtonAdd(!buttonAdd)
@@ -14,7 +28,6 @@ export default function AddCategoryToPart (props) {
 
   function nameSubmit(form) {
     setCategoryName(form.name);
-
   }
 
   function bodySubmit(form) {
@@ -35,9 +48,9 @@ export default function AddCategoryToPart (props) {
   function name() {
     return (
       <div id="categoryName">
-        <form onSubmit={handleSubmit(nameSubmit)}>
+        <form onSubmit={handleSubmit2(nameSubmit)}>
             Category Name:
-            <input {...register("name", { required: true })} />
+            <input {...register2("name", { required: true })} />
             {errors.exampleRequired && <span>This field is required</span>}
             <input type="submit" value="Add Name"/>
           </form>
