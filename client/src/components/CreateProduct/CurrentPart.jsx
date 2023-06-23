@@ -8,18 +8,19 @@ export default function CurrentPart(props) {
   const { register, handleSubmit, watch, formState: { errors } } = useForm();
 
   function formSubmit(form) {
-    let placeholder = partList;
-    placeholder.push(form)
-    setPartList(placeholder);
-    axios.get(`/database`)
-    .then(res => {
-      console.log(res, 'inside client still')
-    })
-    .catch((err) => {
-      if (err) {
-        return console.log(err, 'error in submitting form to database')
-      }
-    })
+    console.log('welp that didnt work)')
+    // let placeholder = partList;
+    // placeholder.push(form)
+    // setPartList(placeholder);
+    // axios.get(`/database`)
+    // .then(res => {
+    //   console.log(res, 'inside client still')
+    // })
+    // .catch((err) => {
+    //   if (err) {
+    //     return console.log(err, 'error in submitting form to database')
+    //   }
+    // })
   }
 
   return (

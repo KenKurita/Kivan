@@ -28,18 +28,19 @@ export default function ClickDropDown(props) {
   }
 
   function formSubmit(form) {
-    let placeholder = partList;
-    placeholder.push(form)
-    setPartList(placeholder);
-    axios.get(`/database`)
-    .then(res => {
-      console.log(res, 'inside client still')
-    })
-    .catch((err) => {
-      if (err) {
-        return console.log(err, 'error in submitting form to database')
-      }
-    })
+    console.log('like damn how many of these thigns did i have')
+    // let placeholder = partList;
+    // placeholder.push(form)
+    // setPartList(placeholder);
+    // axios.get(`/database`)
+    // .then(res => {
+    //   console.log(res, 'inside client still')
+    // })
+    // .catch((err) => {
+    //   if (err) {
+    //     return console.log(err, 'error in submitting form to database')
+    //   }
+    // })
   }
 
 

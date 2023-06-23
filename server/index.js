@@ -48,50 +48,26 @@ app.get('/profile', requiresAuth(), (req, res) => {
 
 //////////////database queries start////////////////
 
-// app.get('/database', function(req, res) {
-//   //test
-//   console.log('inside server', req.data)
-//   let fixtureData = {
-//     name: null
-//   }
-//   db.query('select * from companyName', (err, result) => {
-//     if (err) {
-//       res.status(400).send(console.log(err))
-//     }
-//     console.log(result, 'inside db')
-//   })
-//   res.status(202).send('success')
-// })
 
-app.get('/database/getCategoryList', function(req, res) {
-  //test
-  // console.log('inside server get Category')
-  db.query('select * from categoryList', (err, result) => {
-    if (err) {
-      res.status(400).send(console.log(err))
-    }
-    res.status(200).send(result);
+app.post('/database/manufacturer', function(req, res) {
+  console.log('hello dar')
+  const option = req.body.option;
+const query = 'SELECT * FROM ??';
+const params = [option];
+
+db.query(query, params)
+  .then(data => {
+    console.log('Inside server', data);
+    res.status(200).send(data);
   })
-})
-
-app.post('/database/post', function(req, res) {
-  //test
-  console.log('inside server add Category', req.body.item.name)
-  // if ((db.query('SELECT * from categoryList')) === 0) {
-  //   db.query('CREATE TABLE categoryList (name VARCHAR(255), description VARCHAR(400))');
-  //   db.query(`INSERT INTO categoryList (name, description) VALUES (${req.data.item.name}, ${req.data.item.description})`)
-  //   res.status(202).send('success')
-  // } else {
-    // db.query(`INSERT INTO categoryList (name, description) VALUES ('${req.body.item.name}', '${req.body.item.description}')`, (err, result) => {
-    //   if (err) {
-    //     res.status(400).send('failed to post to db')
-    //   } else {
-    //     res.status(202).send('successfully posted to db')
-    //   }
-    // })
-  // }
+  .catch(err => {
+    console.log('Error in manufacture', err);
+    res.status(400).send(`Error in manufacture: ${err}`);
+  });
 
 })
+
+
 
 /////////////database queires end////////////////
 

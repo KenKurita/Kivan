@@ -7,7 +7,7 @@ import ClickDropDown from './ClickDropDown.jsx';
 import './CreateProduct.css';
 
 export default function ProductName(props) {
-  const [fixtureName, setfixtureName] = useState('name?');
+  const [fixtureName, setfixtureName] = useState('Fixture name?');
   const [categoryList, setCategoryList] = useState([]);
   const [displayAddToList, setDisplayAddToList] = useState(false);
   const { register, handleSubmit, watch, formState: { errors } } = useForm();
@@ -16,6 +16,7 @@ export default function ProductName(props) {
   function formSubmit(form) {
     let placeholder = fixtureName;
     setfixtureName(form['name'])
+    props.addNameToPart(form['name'])
   }
 
   return(

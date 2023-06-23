@@ -3,9 +3,10 @@ import { useForm } from "react-hook-form";
 import axios from 'axios';
 
 export default function AddCategoryToPart (props) {
-  const [categoryName, setCategoryName] = useState('');
-  // const { register, handleSubmit, watch, formState: { errors } } = useForm();
-  // const { register2, handleSubmit2, watch2, formState: {errors2} } = useForm();
+  const [columnData, setColumnData] = useState({
+    name: 'Category Name?',
+    required: false,
+  })
   const [categoryBody, setCategoryBody] = useState([]);
   const [buttonAdd, setButtonAdd] = useState(false);
 
@@ -27,20 +28,38 @@ export default function AddCategoryToPart (props) {
   }
 
   function nameSubmit(form) {
-    setCategoryName(form.name);
+    let x = columnData;
+    x.name = form.name;
+    setColumnData(x)
   }
+
+
 
   function bodySubmit(form) {
     let change = categoryBody;
-    change.push(form.description)
+    for (var i = 0; i < change.length; i++) {
+      // console.log(change[i][0], form.key)
+      if (change[i][0] === form.key) {
+        change[i][1] = form.value
+      } else {
+        change.push([form.key, form.value])
+        break;
+      }
+    }
+    if (change.length === 0) {
+      change.push([form.key, form.value])
+    }
     setCategoryBody(change);
-
+    let x = columnData;
+    x[form.key] = form;
+    setColumnData(x)
+    props.addColumnToPart(x)
   }
 
   function displayParts(list) {
     if (list) {
       return list.map((item) =>
-        <div key={item}>{item}</div>
+          <div key={item}>{item[0]} : {item[1]}</div>
       )
     }
   }
@@ -48,23 +67,29 @@ export default function AddCategoryToPart (props) {
   function name() {
     return (
       <div id="categoryName">
-        <form onSubmit={handleSubmit2(nameSubmit)}>
-            Category Name:
-            <input {...register2("name", { required: true })} />
+        <form onChange={handleSubmit2(nameSubmit)}>
+            <input value={columnData.name} {...register2("name", { required: true })} />
             {errors.exampleRequired && <span>This field is required</span>}
-            <input type="submit" value="Add Name"/>
           </form>
       </div>
     )
   }
 
-  function addToBody() {
+
+  function value() {
     return (
     <div id="categoryBody">
       <form onSubmit={handleSubmit(bodySubmit)}>
-        Description:
-        <input {...register("description", { required: true })} />
+        Key:
+        <input {...register("key", { required: true })} />
+        Value:
+        <input {...register("value", { required: true })} />
+        <input type="checkbox" {...register("priceY")}/>Y
+        <input type="checkbox" {...register("priceN")}/>N Price?
+        <br/>
+        Price: <input {...register("price", {required: false})}/>
         {errors.exampleRequired && <span>This field is required</span>}
+        <br/>
         <input type="submit" value="Add Item"/>
       </form>
     </div>
@@ -72,16 +97,13 @@ export default function AddCategoryToPart (props) {
   }
 
   return (
-    <div style={{display:"flex"}}>
-      <div style={{fontSize:"500%"}}>
-        -
-      </div>
-      <div style={{height: "100px", width: "150px", background:"lightGray", display:""}}>
+    <div style={{display:"block"}}>
+      <div style={{minHeight: "100px", width: "150px", background:"lightGray"}}>
         <div style={{height: "75%", width: "75%", borderBottom: "1px solid #aaa", padding: "6%"}}>
           {
             <div>
               <div>
-                Category: {categoryName}
+                {name()}
               </div>
               <div>
                 {displayParts(categoryBody)}
@@ -89,15 +111,14 @@ export default function AddCategoryToPart (props) {
             </div>
           }
         </div>
+      </div>
         {
             <div>
-              {name()}
-              <div id="categoryBody"  style={{float:"right"}}>
-                {addToBody()}
+              <div id="value"  style={{height: "75%", width: "150px"}}>
+                {value()}
               </div>
             </div>
         }
-      </div>
     </div>
   )
 }
