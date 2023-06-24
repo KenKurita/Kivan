@@ -32,7 +32,7 @@ export default function CreateProductMainPage(props) {
 
   function submit() {
     // console.log('inside Submit', fullPartData)
-    axios.post('/database/manufacturer', {fullPartData})
+    axios.post('/database/CreateProduct/Submit', {fullPartData})
     .then((res) => {
       console.log(res, 'inside axios')
     })

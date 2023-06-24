@@ -48,26 +48,85 @@ app.get('/profile', requiresAuth(), (req, res) => {
 
 //////////////database queries start////////////////
 
+// app.get('/database', function(req, res) {
+//   //test
+//   console.log('inside server', req.data)
+//   let fixtureData = {
+//     name: null
+//   }
+//   db.query('select * from companyName', (err, result) => {
+//     if (err) {
+//       res.status(400).send(console.log(err))
+//     }
+//     console.log(result, 'inside db')
+//   })
+//   res.status(202).send('success')
+// })
 
+app.get('/database/getCategoryList', function(req, res) {
+  //test
+   console.log('inside server get Category')
+  db.query('select * from categoryList', function(err, result) {
+    if (err) {
+      res.status(400).send(console.log(err))
+    }
+    res.status(200).send(result);
+  })
+})
+
+// on load - create product gets list of all manufacturers
+app.get('/database/CreateProduct/get/manufacturer', function(req, res) {
+  db.query('show tables' , (err, result) => {
+    if (err) {
+      res.status(400).send(console.log(err))
+    } else {
+      res.status(200).send(result);
+    }
+  })
+})
+
+// add button for manufacturer from Create Product
 app.post('/database/manufacturer', function(req, res) {
   console.log('hello dar')
-  const option = req.body.option;
-const query = 'SELECT * FROM ??';
-const params = [option];
-
-db.query(query, params)
-  .then(data => {
-    console.log('Inside server', data);
-    res.status(200).send(data);
+  db.query(`SELECT * FROM ${req.body.option}`, function(err, data) {
+    if (err) {
+      // if err then no table. Create table.
+      db.query(`CREATE TABLE ${req.body.option} (id INT PRIMARY KEY, manufacturer VARCHAR(50));`, function(err, data) {
+        if (err) {
+          console.log(err, 'error inside create table for post manufacturer')
+        } else {
+          console.log('successfully posted to database')
+        }
+      })
+      res.send(201)
+    } else {
+      // send an error back if table already exists
+      console.log(data, 'kenny')
+      res.send(404)
+    }
   })
-  .catch(err => {
-    console.log('Error in manufacture', err);
-    res.status(400).send(`Error in manufacture: ${err}`);
-  });
+})
 
+//submit buttom from Create Product
+app.post('/database/CreateProduct/Submit', function(req, res) {
+  console.log('we going', req.body);
 })
 
 
+
+app.post('/database/post', function(req, res) {
+
+  // console.log('inside server add Category', req.body)
+  console.log(db.query('select * from categoryList'))
+  for (var i = 0; i < req.body.length; i++) {
+    if (db.query(`select * from ${req.body[i]}`)) {
+
+    } else {
+      db.query(`create table `)
+    }
+  }
+
+})
 
 /////////////database queires end////////////////
 

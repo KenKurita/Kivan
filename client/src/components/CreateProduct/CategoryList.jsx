@@ -12,17 +12,17 @@ export default function CategoryList(props) {
   const [displayAddToList, setDisplayAddToList] = useState(false);
   const { register, handleSubmit, watch, formState: { errors } } = useForm();
 
-  useEffect(() => {
-    axios.get(`/database/getCategoryList`)
-    .then((result) => {
-      setCategoryList(result.data)
-    })
-    .catch((err) => {
-      if (err) {
-        return console.log(err, 'error inside useEffect')
-      }
-    })
-  }, []);
+  // useEffect(() => {
+  //   axios.get(`/database/getCategoryList`)
+  //   .then((result) => {
+  //     setCategoryList(result.data)
+  //   })
+  //   .catch((err) => {
+  //     if (err) {
+  //       return console.log(err, 'error inside useEffect')
+  //     }
+  //   })
+  // }, []);
 
 
   const mappy = function() {
@@ -66,18 +66,18 @@ export default function CategoryList(props) {
   }
 
   function formSubmit(form) {
-    let placeholder = categoryList;
-    placeholder.push(form)
-    setCategoryList(placeholder);
-    axios.post(`/database/addCategoryList`, {item: form})
-    .then(res => {
-      console.log(res, 'posted inside db showing from client')
-    })
-    .catch((err) => {
-      if (err) {
-        return console.log(err, 'error in submitting category form to database')
-      }
-    })
+    // let placeholder = categoryList;
+    // placeholder.push(form)
+    // setCategoryList(placeholder);
+    // axios.post(`/database/addCategoryList`, {item: form})
+    // .then(res => {
+    //   console.log(res, 'posted inside db showing from client')
+    // })
+    // .catch((err) => {
+    //   if (err) {
+    //     return console.log(err, 'error in submitting category form to database')
+    //   }
+    // })
   }
 
   return (
