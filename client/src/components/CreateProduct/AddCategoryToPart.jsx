@@ -82,7 +82,7 @@ export default function AddCategoryToPart (props) {
       <form onSubmit={handleSubmit(bodySubmit)}>
         Key:
         <input {...register("key", { required: true })} />
-        Value:
+        Description:
         <input {...register("value", { required: true })} />
         <input type="checkbox" {...register("priceY")}/>Y
         <input type="checkbox" {...register("priceN")}/>N Price?

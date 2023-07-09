@@ -91,7 +91,8 @@ app.post('/database/manufacturer', function(req, res) {
   db.query(`SELECT * FROM ${req.body.option}`, function(err, data) {
     if (err) {
       // if err then no table. Create table.
-      db.query(`CREATE TABLE ${req.body.option} (id INT PRIMARY KEY, manufacturer VARCHAR(50));`, function(err, data) {
+      let manufacturerName = req.body.option.toLowerCase()
+      db.query(`CREATE TABLE ${manufacturerName} (id INT PRIMARY KEY, manufacturer VARCHAR(50));`, function(err, data) {
         if (err) {
           console.log(err, 'error inside create table for post manufacturer')
         } else {

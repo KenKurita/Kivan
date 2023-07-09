@@ -8,33 +8,29 @@ const Dropdown = () => {
 
   // Fetch options on component mount
   useEffect(() => {
-    const getOptions = async () => {
-      try {
-        const response = await axios.get('/database/CreateProduct/get/manufacturer');
-        const data = response.data;
-        // setOptions(data);
-        let params = options
-        for (let i = 0; i < data.length; i++) {
-          if (!params.includes(data[i]['Tables_in_draft1'])) {
-            params.push(data[i]['Tables_in_draft1'])
-          }
+  const getOptions = async () => {
+    try {
+      const response = await axios.get('/database/CreateProduct/get/manufacturer');
+      const data = response.data;
+      let dataHold = [];
+      for (let i = 0; i < data.length; i++) {
+        if (!dataHold.includes(data[i].Tables_in_draft1)) {
+          dataHold.push(data[i].Tables_in_draft1)
         }
-        setOptions(params)
-        console.log(options)
-      } catch (error) {
-        console.error(error);
       }
-    };
+      setOptions(dataHold);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
-    getOptions();
+  getOptions();
+}, []);
 
-    return () => {
-      // Cleanup if needed
-    };
-  }, []);
 
   const handleOptionChange = (event) => {
     setSelectedOption(event.target.value);
+    props.setManufacturer(event.target.value);
   };
 
   const handleAddOption = async () => {

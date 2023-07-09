@@ -12,6 +12,7 @@ export default function CreateProductMainPage(props) {
 
   const [productName, setProductName] = useState('');
   const [fullPartData, setFullPartData] = useState([]);
+  const [manufacturer, setManufacturer] = useState('');
   const [columnObj, setColumnObj] = useState({});
 
   // for each column that is added, add to full part#
@@ -32,7 +33,7 @@ export default function CreateProductMainPage(props) {
 
   function submit() {
     // console.log('inside Submit', fullPartData)
-    axios.post('/database/CreateProduct/Submit', {fullPartData})
+    axios.post('/database/CreateProduct/Submit', {fullPartData, manufacturer})
     .then((res) => {
       console.log(res, 'inside axios')
     })
@@ -56,8 +57,8 @@ export default function CreateProductMainPage(props) {
       <ClickDropDown/>
       <CurrentPart/> */}
       <div style={{display: "flex", flexWrap:"wrap", width: "75%", border: "2px solid red"}}>
-        <DropDown/>
-        <ProductName addNameToPart={addNameToPart}/>
+        <DropDown manufacturer={manufacturer} setManufacturer={setManufacturer}/>
+        <AddCategoryToPart addColumnToPart={addColumnToPart}/>
         {fullPart}
         <div style={{fontSize:"400%"}} onClick={add}>
           +
