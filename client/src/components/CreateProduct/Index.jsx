@@ -53,9 +53,6 @@ export default function CreateProductMainPage(props) {
 
   return (
     <div id="CreateProductMainPage">
-      {/* <CategoryList />
-      <ClickDropDown/>
-      <CurrentPart/> */}
       <div style={{display: "flex", flexWrap:"wrap", width: "75%", border: "2px solid red"}}>
         <DropDown manufacturer={manufacturer} setManufacturer={setManufacturer}/>
         <AddCategoryToPart addColumnToPart={addColumnToPart}/>
