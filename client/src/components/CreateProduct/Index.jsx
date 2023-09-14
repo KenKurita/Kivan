@@ -1,70 +1,145 @@
-import React, {useState, useEffect} from "react";
-import CategoryList from "./CategoryList.jsx";
-import ClickDropDown from './ClickDropDown.jsx';
-import CurrentPart from './CurrentPart.jsx';
-import ProductName from './ProductName.jsx';
-import AddCategoryToPart from './AddCategoryToPart.jsx';
+import React, { useEffect, useState } from 'react';
+import { useForm } from "react-hook-form";
 import DropDown from './dropDownManufacture.jsx';
 import axios from 'axios';
-import './CreateProduct.css';
 
-export default function CreateProductMainPage(props) {
-
-  const [productName, setProductName] = useState('');
-  const [fullPartData, setFullPartData] = useState([]);
+export default function CreateCategory(props) {
+  const { register, handleSubmit, watch, reset, setValue, formState: { errors } } = useForm();
+  const [partNum, setPartNum] = useState([]);
+  const [exTable, setExTable] = useState([
+    {
+      key: '1',
+      inputKey: '',
+      inputValue: '',
+      inputPrice: '',
+    }
+  ]);
   const [manufacturer, setManufacturer] = useState('');
-  const [columnObj, setColumnObj] = useState({});
 
-  // for each column that is added, add to full part#
-  function addColumnToPart (input) {
-    let x = fullPartData;
-    x.push(input)
-    setFullPartData(x);
+  const onSubmit = data => {
+    let newPart = partNum;
+    if (partNum.length > 0) {
+      for (let i = 0; i < partNum.length; i++) {
+        if (partNum[i]['categoryName'] === data['categoryName']) {
+          newPart[i] = data;
+        } else {
+          newPart.push(data)
+        }
+      }
+    } else {
+      newPart.push(data)
+    }
+    setPartNum(newPart)
+
+    let resetTableSize = exTable[0];
+    setExTable([resetTableSize])
+    reset()
+  };
+
+  function addRow() {
+    setExTable(prevTable => [
+      ...prevTable,
+      {
+        key: String(prevTable.length + 1),
+        inputKey: '',
+        inputValue: '',
+        inputPrice: '',
+      }
+    ]);
   }
 
-  const [fullPart, setFullPart] = useState([<div key="0" style={{fontSize:"500%"}}>-</div>,<AddCategoryToPart key="00" addColumnToPart={addColumnToPart}/>]);
-  const plusSign = <AddCategoryToPart onClick={add}/>
 
-  function add() {
-    let fullP = [...fullPart];
-    fullP.push(      <div key={ "0" + fullP.length} style={{fontSize:"500%"}}>-</div>, <AddCategoryToPart key={fullP.length} addColumnToPart={addColumnToPart}/>);
-    setFullPart(fullP)
+  function removeRow(index) {
+    setExTable(prevTable => prevTable.filter((_, i) => i !== index));
   }
 
-  function submit() {
-    // console.log('inside Submit', fullPartData)
-    axios.post('/database/CreateProduct/Submit', {fullPartData, manufacturer})
-    .then((res) => {
-      console.log(res, 'inside axios')
+
+  function expandingTable(t) {
+    return exTable.map((item, index) => (
+      <tr key={item.key}>
+        <td><input defaultValue={item.inputKey} {...register(`data.${item.key}.key`)} /></td>
+        <td><input defaultValue={item.inputValue} {...register(`data.${item.key}.value`)} /></td>
+        <td><input defaultValue={item.inputPrice} {...register(`data.${item.key}.price`)} /></td>
+        <td><button onClick={() => removeRow(index)}>Remove</button></td>
+      </tr>
+    ));
+  }
+
+
+  function displayColumnData (list) {
+    return list.map((l, index) => {
+       return <div key={index}><div>{l.key}</div><div>{l.value}</div><div>{l.price}</div></div>
     })
   }
 
-  function addNameToPart(input) {
-    let x = fullPartData;
-    if (x.length === 0) {
-      x.push(input)
-    } else {
-      x[0] = input;
-    }
-    setFullPartData(x)
+  function showColumns (){
+    return partNum.map((item, index) => {
+      return (<div key={index}><div>{item.categoryName}</div><div>{displayColumnData(item.data)}</div> <div><button onClick={() => editColumnData(index)}>Edit</button></div></div>)
+    })
+  }
+
+  function editColumnData(i) {
+    let currentRow = partNum[i];
+    console.log(i, currentRow);
+
+    // Set initial form values when in edit mode
+    setValue(`categoryName`, currentRow.categoryName);
+    currentRow.data.forEach((item, index) => {
+      setValue(`data.${index}.key`, item.key);
+      setValue(`data.${index}.value`, item.value);
+      setValue(`data.${index}.price`, item.price);
+    });
   }
 
 
 
-  return (
-    <div id="CreateProductMainPage">
-      {/* <CategoryList />
-      <ClickDropDown/>
-      <CurrentPart/> */}
-      <div style={{display: "flex", flexWrap:"wrap", width: "75%", border: "2px solid red"}}>
-        <DropDown manufacturer={manufacturer} setManufacturer={setManufacturer}/>
-        <AddCategoryToPart addColumnToPart={addColumnToPart}/>
-        {fullPart}
-        <div style={{fontSize:"400%"}} onClick={add}>
-          +
+  function formy(initialData) {
+    useEffect(() => {
+      if (initialData) {
+        // Set initial form values when in edit mode
+        Object.keys(initialData).forEach((key) => {
+          setValue(`data.${key}.key`, initialData[key].key);
+          setValue(`data.${key}.value`, initialData[key].value);
+          setValue(`data.${key}.price`, initialData[key].price);
+        });
+      }
+    }, [initialData]);
+    return (
+      <div>
+        <form onSubmit={handleSubmit(onSubmit)}>
+        <div>
+          <label htmlFor='name'>Category Name:</label>
+          <input id='name'  {...register(`categoryName`)} />
         </div>
-        <button onClick={submit}>Submit</button>
+        <table>
+          <thead>
+            <tr>
+              <td>Key:</td>
+              <td>Value:</td>
+              <td>Price:</td>
+            </tr>
+          </thead>
+          <tbody>
+            {expandingTable()}
+          </tbody>
+        </table>
+        <button type="button" onClick={addRow}>Add Row</button>
+        {errors.exampleRequired && <span>This field is required</span>}
+        <input type="submit" />
+      </form>
       </div>
+    )
+  }
+
+  function submitFullPart() {
+
+  }
+
+  return (
+    <div>
+      <DropDown manufacturer={manufacturer} setManufacturer={setManufacturer}/>
+      <div>{showColumns()}</div>
+      {formy()}
     </div>
-  )
+  );
 }
