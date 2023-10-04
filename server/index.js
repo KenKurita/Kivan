@@ -24,7 +24,7 @@ app.use(auth(config));
 
 app.use(express.json())
 app.use(express.static(__dirname + '/../client/public'));
-app.use(express.urlencoded({extended: true}));
+app.use(express.urlencoded({ extended: true }));
 
 
 
@@ -63,10 +63,10 @@ app.get('/profile', requiresAuth(), (req, res) => {
 //   res.status(202).send('success')
 // })
 
-app.get('/database/getCategoryList', function(req, res) {
+app.get('/database/getCategoryList', function (req, res) {
   //test
-   console.log('inside server get Category')
-  db.query('select * from categoryList', function(err, result) {
+  console.log('inside server get Category')
+  db.query('select * from categoryList', function (err, result) {
     if (err) {
       res.status(400).send(console.log(err))
     }
@@ -75,8 +75,8 @@ app.get('/database/getCategoryList', function(req, res) {
 })
 
 // on load - create product gets list of all manufacturers
-app.get('/database/CreateProduct/get/manufacturer', function(req, res) {
-  db.query('show tables' , (err, result) => {
+app.get('/database/CreateProduct/get/manufacturer', function (req, res) {
+  db.query('show tables', (err, result) => {
     if (err) {
       res.status(400).send(console.log(err))
     } else {
@@ -86,13 +86,13 @@ app.get('/database/CreateProduct/get/manufacturer', function(req, res) {
 })
 
 // add button for manufacturer from Create Product
-app.post('/database/manufacturer', function(req, res) {
+app.post('/database/manufacturer', function (req, res) {
   console.log('hello dar')
-  db.query(`SELECT * FROM ${req.body.option}`, function(err, data) {
+  db.query(`SELECT * FROM ${req.body.option}`, function (err, data) {
     if (err) {
       // if err then no table. Create table.
       let manufacturerName = req.body.option.toLowerCase()
-      db.query(`CREATE TABLE ${manufacturerName} (id INT PRIMARY KEY, manufacturer VARCHAR(50));`, function(err, data) {
+      db.query(`CREATE TABLE ${manufacturerName} (id INT PRIMARY KEY);`, function (err, data) {
         if (err) {
           console.log(err, 'error inside create table for post manufacturer')
         } else {
@@ -109,13 +109,63 @@ app.post('/database/manufacturer', function(req, res) {
 })
 
 //submit buttom from Create Product
-app.post('/database/CreateProduct/Submit', function(req, res) {
-  console.log('we going', req.body);
-})
+app.post('/database/CreateProduct/Submit', async (req, res) => {
+  // console.log('we going', req.body.partNum);
+  /*
+  req.body data structure is as such:
+  { partNum: [{categoryName: 'xxx', lengthCategory: boolean, data: [...]},{},{},...], manufacturer: 'xxx'}
+  */
+
+  const createCategoryTablePromises = req.body.partNum.map(async (category) => {
+    const constraintName = `foreign_key_cat_${category.categoryName}`;
+    if (category.lengthCategory === true) {
+      try {
+        await db.query(`CREATE TABLE ${category.categoryName} (id INT PRIMARY KEY , lengthCategory BOOLEAN,
+          CONSTRAINT ${constraintName}
+          FOREIGN KEY (id)
+          REFERENCES ${req.body.manufacturer}(id));`);
+
+        await db.query(`INSERT INTO ${category.categoryName}(lengthCategory) VALUES (true);`);
+      } catch (error) {
+        console.log('Error inside createTableForCategoryData function:', error);
+      }
+    }
+  });
+
+  try {
+    await Promise.all(createCategoryTablePromises);
+  } catch (error) {
+    console.error('Error in creating part categories:', error);
+  }
 
 
+  const createTableForCategoryData = await Promise.all(req.body.partNum.map(async (category) => {
+    for (let categoryData in category.data[1]) {
+      const constraintName = `foreign_key_cat_${categoryData.key}`;
+      try {
 
-app.post('/database/post', function(req, res) {
+        await db.query(`CREATE TABLE ${category.data[1].key} (
+            id INT PRIMARY KEY AUTO_INCREMENT,
+            table_key VARCHAR(25),
+            table_value VARCHAR(50),
+            price INT,
+            perFt BOOLEAN,
+            quantity INT,
+            CONSTRAINT ${constraintName} FOREIGN KEY (id) REFERENCES ${category.categoryName}(${category.data[1].key})
+          );`);
+
+        await db.query(`INSERT INTO ${category.data[1].key} (table_key, table_value, price, pricingPerFt, quantity) VALUES
+            ('${category.data[1].key}', '${category.data[1].value}', ${category.data[1].price}, ${category.data[1].perFt}, ${category.data[1].quantity})`);
+        // await console.log('successfully posted to database')
+      } catch (error) {
+        console.log('Error inside createTableForCategoryData function:', error);
+      }
+    }
+  }))
+});
+
+
+app.post('/database/post', function (req, res) {
 
   // console.log('inside server add Category', req.body)
   console.log(db.query('select * from categoryList'))
@@ -134,8 +184,8 @@ app.post('/database/post', function(req, res) {
 // to catch all url routes and let index.html handle once react router loads
 // the reason url doesn’t work is because the url calls on the server, before react router loads
 // react router cant direct if its not loaded up first
-app.get('/*', function(req, res) {
-  res.sendFile(path.join(__dirname, '/../client/public/index.html'), function(err) {
+app.get('/*', function (req, res) {
+  res.sendFile(path.join(__dirname, '/../client/public/index.html'), function (err) {
     if (err) {
       res.status(500).send(err)
     }

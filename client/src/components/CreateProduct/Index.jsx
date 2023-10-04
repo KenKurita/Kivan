@@ -11,26 +11,41 @@ export default function CreateCategory(props) {
       key: '1',
       inputKey: '',
       inputValue: '',
-      inputPrice: '',
+      inputPrice: 0,
+      perFt: false,
+      quantity: 0
     }
   ]);
   const [manufacturer, setManufacturer] = useState('');
 
   const onSubmit = data => {
     let newPart = partNum;
-    if (partNum.length > 0) {
-      for (let i = 0; i < partNum.length; i++) {
-        if (partNum[i]['categoryName'] === data['categoryName']) {
-          newPart[i] = data;
-        } else {
-          newPart.push(data)
-        }
+    let editing = false;
+    const updatedPartNum = partNum.map((category) => {
+      if (data['categoryName'] === category['categoryName']) {
+        editing = true;
+        return data; // Update the matched category
       }
-    } else {
-      newPart.push(data)
-    }
-    setPartNum(newPart)
+      return category; // Return unchanged for other categories
+    });
 
+    setPartNum(updatedPartNum); // Update the state with the updated array
+
+    if (!editing) {
+      newPart.push(data)
+      setPartNum(newPart)
+    }
+    // if (partNum.length > 0) {
+    //   for (let i = 0; i < partNum.length; i++) {
+    //     if (partNum[i]['categoryName'] === data['categoryName']) {
+    //       newPart[i] = data;
+    //     }
+    //   }
+    //   newPart.push(data)
+    // } else {
+    //   newPart.push(data)
+    // }
+    // setPartNum(newPart)
     let resetTableSize = exTable[0];
     setExTable([resetTableSize])
     reset()
@@ -43,7 +58,9 @@ export default function CreateCategory(props) {
         key: String(prevTable.length + 1),
         inputKey: '',
         inputValue: '',
-        inputPrice: '',
+        inputPrice: 0,
+        perFt: false,
+        quantity: 0
       }
     ]);
   }
@@ -60,34 +77,44 @@ export default function CreateCategory(props) {
         <td><input defaultValue={item.inputKey} {...register(`data.${item.key}.key`)} /></td>
         <td><input defaultValue={item.inputValue} {...register(`data.${item.key}.value`)} /></td>
         <td><input defaultValue={item.inputPrice} {...register(`data.${item.key}.price`)} /></td>
+        <td><input type='checkbox' {...register(`data.${item.key}.perFt`)} /></td>
+        <td><input defaultValue={item.inputPrice} {...register(`data.${item.key}.quantity`)} /></td>
         <td><button onClick={() => removeRow(index)}>Remove</button></td>
       </tr>
     ));
   }
 
 
-  function displayColumnData (list) {
+  function displayColumnData(list) {
     return list.map((l, index) => {
-       return <div key={index}><div>{l.key}</div><div>{l.value}</div><div>{l.price}</div></div>
+      return (
+        <div key={index}>
+          <div>Key: {l.key}</div>
+          <div>Value: {l.value}</div>
+          <div>Price: ${l.price}</div>
+          <div>Price Per Ft?{l.perFt}</div>
+          <div>Quantity: {l.quantity}</div>
+        </div>
+      )
     })
   }
 
   function showColumns (){
     return partNum.map((item, index) => {
-      return (<div key={index}><div>{item.categoryName}</div><div>{displayColumnData(item.data)}</div> <div><button onClick={() => editColumnData(index)}>Edit</button></div></div>)
+      return (<div key={index}><div>Column Name: {item.categoryName}</div><div>{displayColumnData(item.data)}</div> <div><button onClick={() => editColumnData(index)}>Edit</button></div></div>)
     })
   }
 
   function editColumnData(i) {
     let currentRow = partNum[i];
-    console.log(i, currentRow);
-
     // Set initial form values when in edit mode
     setValue(`categoryName`, currentRow.categoryName);
     currentRow.data.forEach((item, index) => {
       setValue(`data.${index}.key`, item.key);
       setValue(`data.${index}.value`, item.value);
       setValue(`data.${index}.price`, item.price);
+      setValue(`data.${index}.perFt`, item.perFt);
+      setValue(`data.${index}.quantity`, item.quantity);
     });
   }
 
@@ -101,15 +128,20 @@ export default function CreateCategory(props) {
           setValue(`data.${key}.key`, initialData[key].key);
           setValue(`data.${key}.value`, initialData[key].value);
           setValue(`data.${key}.price`, initialData[key].price);
+          setValue(`data.${key}.perFt`, initialData[key].perFt);
+          setValue(`data.${key}.quantity`, initialData[key].quantity);
         });
       }
     }, [initialData]);
+
     return (
       <div>
         <form onSubmit={handleSubmit(onSubmit)}>
         <div>
           <label htmlFor='name'>Category Name:</label>
           <input id='name'  {...register(`categoryName`)} />
+          <label htmlFor='lengthCategory'>Length Category?</label>
+          <input type='checkbox' id='lengthCategory' {...register(`lengthCategory`)} />
         </div>
         <table>
           <thead>
@@ -117,6 +149,8 @@ export default function CreateCategory(props) {
               <td>Key:</td>
               <td>Value:</td>
               <td>Price:</td>
+              <td>Pricing per foot?</td>
+              <td>Quantity:</td>
             </tr>
           </thead>
           <tbody>
@@ -132,7 +166,11 @@ export default function CreateCategory(props) {
   }
 
   function submitFullPart() {
-
+    // console.log('inside Submit', fullPartData)
+    axios.post('/database/CreateProduct/Submit', {partNum, manufacturer})
+    .then((res) => {
+      console.log(res, 'inside axios')
+    })
   }
 
   return (
@@ -140,6 +178,7 @@ export default function CreateCategory(props) {
       <DropDown manufacturer={manufacturer} setManufacturer={setManufacturer}/>
       <div>{showColumns()}</div>
       {formy()}
+      <button onClick={submitFullPart}>Post Full Part</button>
     </div>
   );
 }

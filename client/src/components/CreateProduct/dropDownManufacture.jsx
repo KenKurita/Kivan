@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from 'axios';
 
-const Dropdown = () => {
+const Dropdown = (props) => {
   const [selectedOption, setSelectedOption] = useState('');
   const [options, setOptions] = useState([]);
   const [newOption, setNewOption] = useState('');
