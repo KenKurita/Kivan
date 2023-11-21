@@ -1,13 +1,24 @@
-const express = require('express')
+require('dotenv').config();
+const express = require('express');
+const mongoose = require('mongoose');
 const port = process.env.port || 3000;
 const bodyParser = require('body-parser');
 const app = express();
 const path = require("path");
 const axios = require("axios");
 const db = require("../database/db.js");
+const mdb = require("../database/mongoose.js");
 const { auth } = require('express-openid-connect');
 const { requiresAuth } = require('express-openid-connect');
-require('dotenv').config();
+
+
+////// functions from Controller file ///////
+const {databasePostController, findQuery} =  require('./controller.js')
+
+/////////////////////////////////////////////
+
+// Connect to MongoDB
+mdb();
 
 /// OAuth2 config ///
 const config = {
@@ -48,21 +59,6 @@ app.get('/profile', requiresAuth(), (req, res) => {
 
 //////////////database queries start////////////////
 
-// app.get('/database', function(req, res) {
-//   //test
-//   console.log('inside server', req.data)
-//   let fixtureData = {
-//     name: null
-//   }
-//   db.query('select * from companyName', (err, result) => {
-//     if (err) {
-//       res.status(400).send(console.log(err))
-//     }
-//     console.log(result, 'inside db')
-//   })
-//   res.status(202).send('success')
-// })
-
 app.get('/database/getCategoryList', function (req, res) {
   //test
   console.log('inside server get Category')
@@ -102,7 +98,6 @@ app.post('/database/manufacturer', function (req, res) {
       res.send(201)
     } else {
       // send an error back if table already exists
-      console.log(data, 'kenny')
       res.send(404)
     }
   })
@@ -110,58 +105,13 @@ app.post('/database/manufacturer', function (req, res) {
 
 //submit buttom from Create Product
 app.post('/database/CreateProduct/Submit', async (req, res) => {
-  // console.log('we going', req.body.partNum);
-  /*
-  req.body data structure is as such:
-  { partNum: [{categoryName: 'xxx', lengthCategory: boolean, data: [...]},{},{},...], manufacturer: 'xxx'}
-  */
-
-  const createCategoryTablePromises = req.body.partNum.map(async (category) => {
-    const constraintName = `foreign_key_cat_${category.categoryName}`;
-    if (category.lengthCategory === true) {
-      try {
-        await db.query(`CREATE TABLE ${category.categoryName} (id INT PRIMARY KEY , lengthCategory BOOLEAN,
-          CONSTRAINT ${constraintName}
-          FOREIGN KEY (id)
-          REFERENCES ${req.body.manufacturer}(id));`);
-
-        await db.query(`INSERT INTO ${category.categoryName}(lengthCategory) VALUES (true);`);
-      } catch (error) {
-        console.log('Error inside createTableForCategoryData function:', error);
-      }
-    }
-  });
-
+  console.log(req.body, req.body.partNum, 'inside index.js create product ')
   try {
-    await Promise.all(createCategoryTablePromises);
-  } catch (error) {
-    console.error('Error in creating part categories:', error);
+    await databasePostController(req.body,res)
+  } catch (err) {
+    console.error(err, 'error inside server index create product submit');
+    res.status(500).send('Internal Server Error');
   }
-
-
-  const createTableForCategoryData = await Promise.all(req.body.partNum.map(async (category) => {
-    for (let categoryData in category.data[1]) {
-      const constraintName = `foreign_key_cat_${categoryData.key}`;
-      try {
-
-        await db.query(`CREATE TABLE ${category.data[1].key} (
-            id INT PRIMARY KEY AUTO_INCREMENT,
-            table_key VARCHAR(25),
-            table_value VARCHAR(50),
-            price INT,
-            perFt BOOLEAN,
-            quantity INT,
-            CONSTRAINT ${constraintName} FOREIGN KEY (id) REFERENCES ${category.categoryName}(${category.data[1].key})
-          );`);
-
-        await db.query(`INSERT INTO ${category.data[1].key} (table_key, table_value, price, pricingPerFt, quantity) VALUES
-            ('${category.data[1].key}', '${category.data[1].value}', ${category.data[1].price}, ${category.data[1].perFt}, ${category.data[1].quantity})`);
-        // await console.log('successfully posted to database')
-      } catch (error) {
-        console.log('Error inside createTableForCategoryData function:', error);
-      }
-    }
-  }))
 });
 
 
@@ -176,7 +126,22 @@ app.post('/database/post', function (req, res) {
       db.query(`create table `)
     }
   }
+})
 
+app.get('/database/get', async function (req, res) {
+  console.log('inside database get', req.query.part)
+  try {
+    const queryGet = await findQuery(req.query.part)
+    // console.log(queryGet[0])
+    if (queryGet.length > 0) {
+      res.status(200).send(queryGet)
+    } else {
+      res.status(404).send('query not found')
+    }
+  } catch (err) {
+    console.log(err, 'error inside database get');
+    res.status(500).send('Internal Server Error');
+  }
 })
 
 /////////////database queires end////////////////
@@ -192,6 +157,9 @@ app.get('/*', function (req, res) {
   })
 })
 
-app.listen(port, () => {
-  console.log(`listening on port ${port}`)
+mongoose.connection.once( 'open', () => {
+  console.log('Connected to MongoDB');
+  app.listen(port, () => {
+    console.log(`listening on port ${port}`)
+  })
 })

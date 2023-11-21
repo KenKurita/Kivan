@@ -5,15 +5,16 @@ import axios from 'axios';
 
 export default function CreateCategory(props) {
   const { register, handleSubmit, watch, reset, setValue, formState: { errors } } = useForm();
+  const [fixtureName, setFixtureName] = useState('');
+  const [subFixtureName, setSubFixtureName] = useState('');
   const [partNum, setPartNum] = useState([]);
   const [exTable, setExTable] = useState([
     {
       key: '1',
       inputKey: '',
       inputValue: '',
-      inputPrice: 0,
-      perFt: false,
-      quantity: 0
+      quantity: false,
+      asterisks:''
     }
   ]);
   const [manufacturer, setManufacturer] = useState('');
@@ -35,17 +36,6 @@ export default function CreateCategory(props) {
       newPart.push(data)
       setPartNum(newPart)
     }
-    // if (partNum.length > 0) {
-    //   for (let i = 0; i < partNum.length; i++) {
-    //     if (partNum[i]['categoryName'] === data['categoryName']) {
-    //       newPart[i] = data;
-    //     }
-    //   }
-    //   newPart.push(data)
-    // } else {
-    //   newPart.push(data)
-    // }
-    // setPartNum(newPart)
     let resetTableSize = exTable[0];
     setExTable([resetTableSize])
     reset()
@@ -71,39 +61,48 @@ export default function CreateCategory(props) {
   }
 
 
-  function expandingTable(t) {
+  function expandingTable() {
+    console.log(' table in render', exTable)
     return exTable.map((item, index) => (
       <tr key={item.key}>
-        <td><input defaultValue={item.inputKey} {...register(`data.${item.key}.key`)} /></td>
-        <td><input defaultValue={item.inputValue} {...register(`data.${item.key}.value`)} /></td>
-        <td><input defaultValue={item.inputPrice} {...register(`data.${item.key}.price`)} /></td>
-        <td><input type='checkbox' {...register(`data.${item.key}.perFt`)} /></td>
-        <td><input defaultValue={item.inputPrice} {...register(`data.${item.key}.quantity`)} /></td>
+        <td><input defaultValue={item.inputKey} {...register(`data.${item.key}.inputKey`)} /></td>
+        <td><input defaultValue={item.inputValue} {...register(`data.${item.key}.inputValue`)} /></td>
+        <td><input type='checkbox' defaultChecked={item.quantity} {...register(`data.${item.key}.quantity`)} /></td>
+        <td><input defaultValue={item.asterisks} {...register(`data.${item.key}.asterisks`)} /></td>
         <td><button onClick={() => removeRow(index)}>Remove</button></td>
       </tr>
     ));
   }
 
 
+
   function displayColumnData(list) {
+    console.log(list, 'list')
     return list.map((l, index) => {
+      console.log(l, 'niofrtjh')
       return (
         <div key={index}>
-          <div>Key: {l.key}</div>
-          <div>Value: {l.value}</div>
-          <div>Price: ${l.price}</div>
-          <div>Price Per Ft?{l.perFt}</div>
-          <div>Quantity: {l.quantity}</div>
+          <div>Key: {l.inputKey}</div>
+          <div>Value: {l.inputValue}</div>
+          <div>Quantity Dependent?{l.quantity ? 'true': 'false'}</div>
+          <div>Asterisks: {l.asterisks}</div>
         </div>
       )
     })
   }
 
-  function showColumns (){
+  function showColumns() {
     return partNum.map((item, index) => {
-      return (<div key={index}><div>Column Name: {item.categoryName}</div><div>{displayColumnData(item.data)}</div> <div><button onClick={() => editColumnData(index)}>Edit</button></div></div>)
-    })
+      return (
+        <div key={index}>
+          <div>Column Name: {item.categoryName}</div>
+          <div>{displayColumnData(item.data)}</div>
+          <div><button onClick={() => editColumnData(index)}>Edit</button></div>
+        </div>
+      );
+    });
   }
+
 
   function editColumnData(i) {
     let currentRow = partNum[i];
@@ -112,9 +111,8 @@ export default function CreateCategory(props) {
     currentRow.data.forEach((item, index) => {
       setValue(`data.${index}.key`, item.key);
       setValue(`data.${index}.value`, item.value);
-      setValue(`data.${index}.price`, item.price);
-      setValue(`data.${index}.perFt`, item.perFt);
       setValue(`data.${index}.quantity`, item.quantity);
+      setValue(`data.${index}.asterisks`, item.asterisks);
     });
   }
 
@@ -127,9 +125,8 @@ export default function CreateCategory(props) {
         Object.keys(initialData).forEach((key) => {
           setValue(`data.${key}.key`, initialData[key].key);
           setValue(`data.${key}.value`, initialData[key].value);
-          setValue(`data.${key}.price`, initialData[key].price);
-          setValue(`data.${key}.perFt`, initialData[key].perFt);
           setValue(`data.${key}.quantity`, initialData[key].quantity);
+          setValue(`data.${key}.asterisks`, initialData[key].asterisks);
         });
       }
     }, [initialData]);
@@ -148,9 +145,8 @@ export default function CreateCategory(props) {
             <tr>
               <td>Key:</td>
               <td>Value:</td>
-              <td>Price:</td>
-              <td>Pricing per foot?</td>
-              <td>Quantity:</td>
+              <td>Quantity Dependent?</td>
+              <td>Asterisk separated by comma</td>
             </tr>
           </thead>
           <tbody>
@@ -165,17 +161,29 @@ export default function CreateCategory(props) {
     )
   }
 
+  function fixtureNameFunc(e) {
+    setFixtureName(e.target.value)
+  }
+
+  function subFixtureNameFunc(e) {
+    setSubFixtureName(e.target.value)
+  }
+
   function submitFullPart() {
-    // console.log('inside Submit', fullPartData)
-    axios.post('/database/CreateProduct/Submit', {partNum, manufacturer})
+    console.log('inside Submit', partNum)
+    axios.post('/database/CreateProduct/Submit', {manufacturer, fixtureName, subFixtureName, partNum})
     .then((res) => {
       console.log(res, 'inside axios')
     })
   }
 
+
   return (
     <div>
       <DropDown manufacturer={manufacturer} setManufacturer={setManufacturer}/>
+      Fixture Name:<input name='fixtureName' onChange={fixtureNameFunc} value={fixtureName}/><br/>
+      additional Fixture Description: <input name='subFixtureName' onChange={subFixtureNameFunc} value={subFixtureName} /><br/>
+      <div></div>
       <div>{showColumns()}</div>
       {formy()}
       <button onClick={submitFullPart}>Post Full Part</button>
