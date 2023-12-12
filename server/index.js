@@ -132,7 +132,15 @@ app.get('/database/get', async function (req, res) {
   console.log('inside database get', req.query.part)
   try {
     const queryGet = await findQuery(req.query.part)
+    // functions to check if what is called has data
     // console.log(queryGet[0])
+    // const logging = function() {
+    //   queryGet[0].fixtureSpec.forEach((spec) => {
+    //     console.log(spec.columnGuts)
+    //   })
+    // }
+    // logging()
+    /////////////////////
     if (queryGet.length > 0) {
       res.status(200).send(queryGet)
     } else {
