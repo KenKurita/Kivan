@@ -17,9 +17,15 @@ export default function SearchProduct(props) {
         const newSelectedPartSkeleton = [];
         setFixtureName(res.data[0]['fixtureName']);
         res.data[0]['fixtureSpec'].forEach((p) => {
-          newSelectedPartSkeleton.push({columnName: p.columnName, optionSelected: null, lengthColumn: p.columnLength})
-          newPart.push(p)
+          const singleOption = p.columnGuts.length === 1 ? p.columnGuts[0].key : null;
+          newSelectedPartSkeleton.push({
+            columnName: p.columnName,
+            optionSelected: singleOption, // Set to the single option's key or null
+            lengthColumn: p.columnLength
+          });
+          newPart.push(p);
         });
+
 
         // pulling part and setting it to state to reference for rendingering
         setPart(newPart);
@@ -57,7 +63,7 @@ export default function SearchProduct(props) {
           <tr>
             <td key='0'>
               <div>{fixtureName}</div>
-              <IoRemoveOutline />
+              <IoRemoveOutline/>
             </td>
             {partMappy}
           </tr>
@@ -72,15 +78,15 @@ export default function SearchProduct(props) {
     if (input['columnGuts'].length > 1) {
       const dropDownMappy = input['columnGuts'].map((dropDownPart, index) => {
         return (
-          <option key={index} value={dropDownPart.key}>{dropDownPart.key} - {dropDownPart.description}</option>
+          <option key={index} value={dropDownPart.key} onSelect={selectFunc}>{dropDownPart.key} - {dropDownPart.description}</option>
         )
       })
       return (
-        <select value=''>
+        <select onChange={dropDownPartUpdate} name={input.columnName}>
           <option></option>
           {dropDownMappy}
         </select>
-      )
+      );
     } else if (input['columnGuts'].length === 1){
       return (
         <div>{input['columnGuts'][0].key} - {input['columnGuts'][0].description}</div>
@@ -91,8 +97,12 @@ export default function SearchProduct(props) {
   }
 
   // Pricing function in SQL database
-  const getPrice = () => {
-    console.log(part, 'getPrice')
+  const getPrice = async () => {
+    console.log(selectedPart, 'getPrice')
+    const getResponse = await axios.post(`/database/get/price`, {selectedPart})
+    .then((res) => {
+      console.log(res, 'inside get price')
+    })
   }
 
   const handleSearch = (e) => {
@@ -123,8 +133,29 @@ export default function SearchProduct(props) {
     setSelectedPart(changingPartLength);
   }
 
-  const handleOptionSelectPart = (event) => {
-    console.log(event.target.value, 'handleOptionSelectedPart')
+  const dropDownPartUpdate = (event) => {
+    const selectedValue = event.target.value;
+    const columnName = event.target.name; // Now you have the identifier
+
+    // Create a new array with updated parts
+    const updatedSelectedParts = selectedPart.map(part => {
+      if (part.columnName === columnName) {
+        return { ...part, optionSelected: selectedValue }; // Update the specific part
+      }
+      return part; // Return the part unchanged if it's not the one we're updating
+    });
+
+    setSelectedPart(updatedSelectedParts); // Set the new state
+  };
+
+
+
+  const selectFunc = (selected) => {
+    console.log(selected,'select')
+  }
+
+  const selectedDropDown = (event) => {
+    console.log(event, 'inside selectedDropDown')
   }
 
 

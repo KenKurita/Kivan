@@ -39,17 +39,14 @@ const databasePostController = async (req, res) => {
     }
   };
 
-  // Wrap your makeFixture call in an async function
   const processFixture = async (req, res) => {
     try {
       await makeFixture(req);
 
-      // Assuming addFixture.save() is an asynchronous database save operation, you would await it here
       await addFixture.save();
 
-      // Assuming you have the unique identifier of the inserted document
-      const uniqueId = addFixture._id; // Replace with the actual identifier field
-      // Query for the document
+      const uniqueId = addFixture._id;
+
       const foundFixture = await Lschema.findById(uniqueId);
       if (foundFixture) {
         return res.status(202).send('Successfully posted to database');
@@ -67,8 +64,20 @@ const databasePostController = async (req, res) => {
   processFixture(req, res);
 }
 
+const getPrice = async(req, res) => {
+  console.log(req, 'getPrice controller.js file log')
+  try {
+    const getPriceFromDB = await ManuSchema.find(req.)
+    return res.status(202).send(getPriceFromDB)
+  } catch (error){
+    console.error('Error getting price in controller', error);
+    res.status(500).send('Error getting price from controller file')
+  }
+}
+
 
 module.exports = {
   databasePostController,
-  findQuery
+  findQuery,
+  getPrice
 }

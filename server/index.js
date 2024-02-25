@@ -13,7 +13,7 @@ const { requiresAuth } = require('express-openid-connect');
 
 
 ////// functions from Controller file ///////
-const {databasePostController, findQuery} =  require('./controller.js')
+const {databasePostController, findQuery, getPrice} =  require('./controller.js')
 
 /////////////////////////////////////////////
 
@@ -45,14 +45,6 @@ app.get('/', (req, res) => {
 })
 
 
-
-
-/*
-To display the user's profile, your application should provide a protected route.
-
-Add the requiresAuth middleware for routes that require authentication.
-Any route using this middleware will check for a valid user session and, if one does not exist, it will redirect the user to log in.
-*/
 app.get('/profile', requiresAuth(), (req, res) => {
   res.send(JSON.stringify(req.oidc.user));
 });
@@ -83,7 +75,6 @@ app.get('/database/CreateProduct/get/manufacturer', function (req, res) {
 
 // add button for manufacturer from Create Product
 app.post('/database/manufacturer', function (req, res) {
-  console.log('hello dar')
   db.query(`SELECT * FROM ${req.body.option}`, function (err, data) {
     if (err) {
       // if err then no table. Create table.
@@ -114,33 +105,16 @@ app.post('/database/CreateProduct/Submit', async (req, res) => {
   }
 });
 
-
-app.post('/database/post', function (req, res) {
-
-  // console.log('inside server add Category', req.body)
-  console.log(db.query('select * from categoryList'))
-  for (var i = 0; i < req.body.length; i++) {
-    if (db.query(`select * from ${req.body[i]}`)) {
-
-    } else {
-      db.query(`create table `)
-    }
-  }
+// get price from mdb
+app.post('/database/get/price', async function(req, res) {
+  // console.log(req.body, 'inside get price')
+  getPrice(req.body)
 })
 
 app.get('/database/get', async function (req, res) {
   console.log('inside database get', req.query.part)
   try {
     const queryGet = await findQuery(req.query.part)
-    // functions to check if what is called has data
-    // console.log(queryGet[0])
-    // const logging = function() {
-    //   queryGet[0].fixtureSpec.forEach((spec) => {
-    //     console.log(spec.columnGuts)
-    //   })
-    // }
-    // logging()
-    /////////////////////
     if (queryGet.length > 0) {
       res.status(200).send(queryGet)
     } else {
@@ -151,6 +125,7 @@ app.get('/database/get', async function (req, res) {
     res.status(500).send('Internal Server Error');
   }
 })
+
 
 /////////////database queires end////////////////
 
